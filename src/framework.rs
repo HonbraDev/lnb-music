@@ -28,7 +28,7 @@ pub fn build(token: &str, guild_id: GuildId) -> FrameworkBuilder<Data, CommandEr
             },
             ..Default::default()
         })
-        .intents(GatewayIntents::non_privileged())
+        .intents(GatewayIntents::GUILDS | GatewayIntents::GUILD_VOICE_STATES)
         .token(token)
         .client_settings(|c| c.register_songbird())
         .setup(move |ctx, _ready, framework| {

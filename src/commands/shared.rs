@@ -21,9 +21,7 @@ pub async fn get_conn(ctx: &Context<'_>) -> Result<Arc<Mutex<Call>>> {
     Ok(conn)
 }
 
-pub async fn join_channel(
-    ctx: &Context<'_>,
-) -> Result<(GuildId, ChannelId, Arc<Mutex<Call>>)> {
+pub async fn join_channel(ctx: &Context<'_>) -> Result<(GuildId, ChannelId, Arc<Mutex<Call>>)> {
     let guild = ctx.guild().ok_or(NotInGuildError)?;
 
     let channel = guild
