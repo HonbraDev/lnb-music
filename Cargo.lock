@@ -780,7 +780,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "lnb-discor-bot"
+name = "lnb-music"
 version = "0.1.0"
 dependencies = [
  "figment",

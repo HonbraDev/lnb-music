@@ -1,17 +1,11 @@
-use super::{base_embed, error::NotInVoiceChannelError, shared::get_conn, Context, Result};
+use super::{base_embed, shared::leave_channel, Context, Result};
 
 /// Leave the current voice channel
 #[poise::command(slash_command)]
 pub async fn leave(ctx: Context<'_>) -> Result<()> {
     ctx.defer().await?;
 
-    let channel_id = {
-        let conn = get_conn(&ctx).await?;
-        let mut conn = conn.lock().await;
-        let current_channel = conn.current_channel().ok_or(NotInVoiceChannelError)?;
-        conn.leave().await?;
-        current_channel
-    };
+    let (_, channel_id) = leave_channel(&ctx).await?;
 
     ctx.send(|r| {
         r.embed(|e| {
