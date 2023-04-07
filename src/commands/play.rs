@@ -5,7 +5,7 @@ use super::{base_embed, shared::join_channel, Context, Result};
 
 /// Play audio from a URL in your current voice channel
 #[poise::command(slash_command)]
-pub(super) async fn play(
+pub async fn play(
     ctx: Context<'_>,
     #[description = "The URL of the audio"] url: Url,
 ) -> Result<()> {
@@ -27,7 +27,7 @@ pub(super) async fn play(
 
     ctx.send(|r| {
         r.embed(|e| {
-            base_embed(e).title("Playing audio");
+            base_embed(e).title(format!("Playing audio in <#{channel_id}>"));
 
             if let Some(title) = &metadata.title {
                 e.field("Title", title, false);
@@ -38,8 +38,6 @@ pub(super) async fn play(
             if let Some(duration) = &metadata.duration {
                 e.field("Duration", format_duration(duration.clone()), true);
             }
-
-            e.field("Channel", format!("<#{channel_id}>"), true);
 
             if let Some(source_url) = &metadata.source_url {
                 e.field("Source", format!("[Open original]({source_url})"), true);

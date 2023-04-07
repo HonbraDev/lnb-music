@@ -2,11 +2,11 @@ use poise::{FrameworkBuilder, FrameworkError};
 use serenity::model::{gateway::GatewayIntents, id::GuildId};
 use songbird::SerenityInit;
 
-use crate::commands::{self, base_embed_error, Error};
+use crate::commands::{self, base_embed_error, Error as CommandError};
 
 pub struct Data {}
 
-pub fn build(token: &str, guild_id: GuildId) -> FrameworkBuilder<Data, Error> {
+pub fn build(token: &str, guild_id: GuildId) -> FrameworkBuilder<Data, CommandError> {
     poise::Framework::builder()
         .options(poise::FrameworkOptions {
             commands: commands::get(),

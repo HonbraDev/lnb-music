@@ -2,7 +2,7 @@ use super::{base_embed, shared::join_channel, Context, Result};
 
 /// Join your current voice channel
 #[poise::command(slash_command)]
-pub(super) async fn join(ctx: Context<'_>) -> Result<()> {
+pub async fn join(ctx: Context<'_>) -> Result<()> {
     ctx.defer().await?;
 
     let (_, channel_id, _) = join_channel(&ctx).await?;
