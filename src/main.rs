@@ -1,17 +1,14 @@
 mod commands;
 mod framework;
 
-use async_trait::async_trait;
+use std::process::exit;
+
 use figment::{
     providers::{Env, Format, Toml},
     Figment,
 };
-use poise::serenity_prelude::EventHandler;
 use serde::Deserialize;
-use serenity::{
-    client::Context,
-    model::{gateway::Ready, id::GuildId},
-};
+use serenity::model::id::GuildId;
 use thiserror::Error;
 
 #[derive(Deserialize)]
@@ -29,17 +26,7 @@ enum Error {
     Serenity(#[from] serenity::Error),
 }
 
-struct Handler;
-
-#[async_trait]
-impl EventHandler for Handler {
-    async fn ready(&self, _: Context, ready: Ready) {
-        println!("{} is connected!", ready.user.name);
-    }
-}
-
-#[tokio::main]
-async fn main() -> Result<(), Error> {
+async fn run() -> Result<(), Error> {
     let config: Config = Figment::new()
         .merge(Toml::file("discor.toml"))
         .merge(Env::raw())
@@ -50,4 +37,12 @@ async fn main() -> Result<(), Error> {
         .await?;
 
     Ok(())
+}
+
+#[tokio::main]
+async fn main() {
+    if let Err(err) = run().await {
+        eprintln!("{err}");
+        exit(1);
+    }
 }
