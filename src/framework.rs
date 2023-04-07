@@ -2,7 +2,7 @@ use poise::{FrameworkBuilder, FrameworkError};
 use serenity::model::{gateway::GatewayIntents, id::GuildId};
 use songbird::SerenityInit;
 
-use crate::commands::{self, Error};
+use crate::commands::{self, base_embed_error, Error};
 
 pub struct Data {}
 
@@ -14,7 +14,11 @@ pub fn build(token: &str, guild_id: GuildId) -> FrameworkBuilder<Data, Error> {
                 Box::pin(async move {
                     match error {
                         FrameworkError::Command { error, ctx } => {
-                            let _ = ctx.say(format!("Error: {error}")).await;
+                            let _ = ctx
+                                .send(|r| {
+                                    r.embed(|e| base_embed_error(e).description(error.to_string()))
+                                })
+                                .await;
                         }
                         error => {
                             let _ = poise::builtins::on_error(error).await;
