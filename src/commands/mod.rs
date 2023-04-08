@@ -1,7 +1,7 @@
 mod error;
-mod join;
-mod leave;
+mod nowplaying;
 mod play;
+mod queue;
 mod shared;
 mod stop;
 
@@ -15,7 +15,12 @@ pub type Context<'a> = poise::Context<'a, Data, Error>;
 pub type Result<R> = core::result::Result<R, Error>;
 
 pub fn get() -> Vec<Command<Data, Error>> {
-    vec![join::join(), leave::leave(), play::play(), stop::stop()]
+    vec![
+        nowplaying::nowplaying(),
+        play::play(),
+        queue::queue(),
+        stop::stop(),
+    ]
 }
 
 pub fn base_embed(e: &mut CreateEmbed) -> &mut CreateEmbed {

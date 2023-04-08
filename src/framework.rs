@@ -1,4 +1,4 @@
-use poise::{FrameworkBuilder, FrameworkError};
+use poise::{FrameworkBuilder, FrameworkError, PrefixFrameworkOptions};
 use serenity::model::{gateway::GatewayIntents, id::GuildId};
 use songbird::SerenityInit;
 
@@ -26,9 +26,18 @@ pub fn build(token: &str, guild_id: GuildId) -> FrameworkBuilder<Data, CommandEr
                     }
                 })
             },
+            prefix_options: PrefixFrameworkOptions {
+                prefix: Some("alexa".to_string()),
+                ..Default::default()
+            },
             ..Default::default()
         })
-        .intents(GatewayIntents::GUILDS | GatewayIntents::GUILD_VOICE_STATES)
+        .intents(
+            /* GatewayIntents::GUILDS
+            | GatewayIntents::GUILD_VOICE_STATES
+            | GatewayIntents::MESSAGE_CONTENT, */
+            GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT,
+        )
         .token(token)
         .client_settings(|c| c.register_songbird())
         .setup(move |ctx, _ready, framework| {

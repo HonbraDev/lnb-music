@@ -1,10 +1,10 @@
-use super::{base_embed, shared::get_conn, Context, Result};
+use super::{base_embed, shared::leave_channel, Context, Result};
 
-/// Stop the playback of audio
-#[poise::command(slash_command)]
+/// Stop the playback
+#[poise::command(slash_command, prefix_command)]
 pub async fn stop(ctx: Context<'_>) -> Result<()> {
-    ctx.defer().await?;
-    get_conn(&ctx).await?.lock().await.stop();
+    leave_channel(&ctx).await?;
+
     ctx.send(|r| {
         r.embed(|e| {
             base_embed(e)
@@ -13,5 +13,6 @@ pub async fn stop(ctx: Context<'_>) -> Result<()> {
         })
     })
     .await?;
+
     Ok(())
 }

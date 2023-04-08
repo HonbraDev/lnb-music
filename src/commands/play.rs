@@ -1,33 +1,39 @@
+use std::sync::Arc;
+
+use async_trait::async_trait;
 use humantime::format_duration;
+use serenity::model::id::GuildId;
+use songbird::{
+    input::{Input, Restartable},
+    Event, EventContext, EventHandler as VoiceEventHandler, Songbird, TrackEvent,
+};
 use url::Url;
 
 use super::{base_embed, shared::join_channel, Context, Result};
 
-/// Play audio from a URL in your current voice channel
-#[poise::command(slash_command)]
-pub async fn play(
-    ctx: Context<'_>,
-    #[description = "The URL of the audio"] url: Url,
-) -> Result<()> {
-    ctx.defer().await?;
-
-    let (_, channel_id, conn) = join_channel(&ctx).await?;
-
-    let metadata = {
-        let mut conn = conn.lock().await;
-
-        let source = songbird::ytdl(&url).await?;
-        let metadata = source.metadata.clone();
-
-        conn.stop();
-        conn.play_source(source);
-
-        metadata
+/// Play something
+#[poise::command(slash_command, prefix_command)]
+pub async fn play(ctx: Context<'_>, #[description = "What to play"] what: String) -> Result<()> {
+    let source: Input = if let Ok(url) = Url::parse(&what) {
+        Restartable::ytdl(url, true).await?.into()
+    } else {
+        Restartable::ytdl_search(what, true).await?.into()
     };
+
+    let (guild_id, channel_id, conn, manager) = join_channel(&ctx).await?;
+
+    let metadata = source.metadata.clone();
+
+    let handle = conn.lock().await.enqueue_source(source);
+
+    let _ = handle.add_event(
+        Event::Track(TrackEvent::End),
+        EndLeaver { manager, guild_id },
+    );
 
     ctx.send(|r| {
         r.embed(|e| {
-            base_embed(e).title(format!("Playing audio in <#{channel_id}>"));
+            base_embed(e).title(format!("Queueing audio in <#{channel_id}>"));
 
             if let Some(title) = &metadata.title {
                 e.field("Title", title, false);
@@ -36,7 +42,7 @@ pub async fn play(
             }
 
             if let Some(duration) = &metadata.duration {
-                e.field("Duration", format_duration(duration.clone()), true);
+                e.field("Duration", format_duration(*duration), true);
             }
 
             if let Some(source_url) = &metadata.source_url {
@@ -53,4 +59,24 @@ pub async fn play(
     .await?;
 
     Ok(())
+}
+
+struct EndLeaver {
+    pub manager: Arc<Songbird>,
+    pub guild_id: GuildId,
+}
+
+#[async_trait]
+impl VoiceEventHandler for EndLeaver {
+    async fn act(&self, _ctx: &EventContext<'_>) -> Option<Event> {
+        if let Some(conn) = self.manager.get(self.guild_id) {
+            let should_remove = conn.lock().await.queue().is_empty();
+            if should_remove {
+                if let Err(err) = self.manager.remove(self.guild_id).await {
+                    eprintln!("Failed to leave after track end: {err}");
+                }
+            }
+        }
+        None
+    }
 }
