@@ -20,7 +20,7 @@ pub async fn queue(ctx: Context<'_>) -> Result<()> {
             base_embed(e).title(format!("Queue in <#{current_channel}>"));
 
             if queue.is_empty() {
-                e.description("The queue is empty.");
+                e.description("The queue is empty");
             } else {
                 let body = queue
                     .iter()
