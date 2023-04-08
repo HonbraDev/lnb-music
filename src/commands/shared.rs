@@ -40,8 +40,9 @@ pub async fn join_channel(
     let conn = {
         let (conn, result) = manager.join(guild.id, channel_id).await;
         if let Err(err) = result {
-            // idk if I actually need to do that but hey, it can't hurt, right?
-            manager.remove(guild.id).await?;
+            if err.should_leave_server() {
+                conn.lock().await.leave().await?;
+            }
             return Err(err.into());
         }
         conn

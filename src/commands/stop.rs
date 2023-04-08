@@ -9,7 +9,7 @@ pub async fn stop(ctx: Context<'_>) -> Result<()> {
         r.embed(|e| {
             base_embed(e)
                 .title("Stopped playing")
-                .description("May your eardrums take a break")
+                .description("May your eardrums take a break.")
         })
     })
     .await?;

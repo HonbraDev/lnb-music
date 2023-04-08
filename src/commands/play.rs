@@ -12,13 +12,15 @@ use url::Url;
 use super::{base_embed, shared::join_channel, Context, Result};
 
 /// Play something
-#[poise::command(slash_command, prefix_command)]
+#[poise::command(slash_command, prefix_command, broadcast_typing)]
 pub async fn play(
     ctx: Context<'_>,
     #[description = "What to play"]
     #[rest]
     what: String,
 ) -> Result<()> {
+    ctx.defer().await?;
+
     let source: Input = if let Ok(url) = Url::parse(&what) {
         Restartable::ytdl(url, true).await?.into()
     } else {

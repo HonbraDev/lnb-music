@@ -14,7 +14,7 @@ pub async fn order(
             r.embed(|e| {
                 base_embed(e)
                     .title("Order product")
-                    .description(format!("Searching Amazon for `{what}`"))
+                    .description(format!("Searching Amazon for `{what}`..."))
             })
         })
         .await?;
@@ -26,7 +26,7 @@ pub async fn order(
             r.embed(|e| {
                 base_embed_error(e)
                     .title("No results found")
-                    .description("Please try again with a different query")
+                    .description("Please try again with a different query.")
             })
         })
         .await?;

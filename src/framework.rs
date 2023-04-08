@@ -16,7 +16,9 @@ pub fn build(token: &str, guild_id: GuildId) -> FrameworkBuilder<Data, CommandEr
                         FrameworkError::Command { error, ctx } => {
                             let _ = ctx
                                 .send(|r| {
-                                    r.embed(|e| base_embed_error(e).description(error.to_string()))
+                                    r.embed(|e| {
+                                        base_embed_error(e).description(error.to_string())
+                                    })
                                 })
                                 .await;
                         }

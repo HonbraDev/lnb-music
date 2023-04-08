@@ -1,4 +1,5 @@
 mod error;
+mod help;
 mod nowplaying;
 mod order;
 mod play;
@@ -17,6 +18,7 @@ pub type Result<R> = core::result::Result<R, Error>;
 
 pub fn get() -> Vec<Command<Data, Error>> {
     vec![
+        help::help(),
         nowplaying::nowplaying(),
         order::order(),
         play::play(),
